@@ -1,22 +1,3 @@
-/*
-  For node server use https://github.com/TannerGabriel/WebRTC-Video-Broadcast
-  - run node server
-  - open http://localhost:3000/broadcast.html
-  To deploy node.js project on Heroku watch this youtube video https://www.youtube.com/watch?v=MxfxiR8TVNU
-  General Flow:
-  - socket on connection
-  - socket emit watcher
-  - socket on offer
-    + RTCPeerConnection
-    + setRemoteDescription
-    + createAnswer
-    + setLocalDescription then emit answer
-    + onaddstream
-    + onicecandidate then emit candidate
-  - socket on candidate
-  - socket on disconnectPeer
-*/
-
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Dimensions, View, Button} from 'react-native';
 import {
@@ -49,7 +30,6 @@ export default WebRTCWatch = _ => {
     socket
       .on('connect', _ => socket.emit('watcher'))
       .on('offer', async (id, desc) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         peer = new RTCPeerConnection(config);
         peer
           .setRemoteDescription(new RTCSessionDescription(desc))
@@ -57,7 +37,6 @@ export default WebRTCWatch = _ => {
           .then(sdp => peer.setLocalDescription(sdp))
           .then(_ => socket.emit('answer', id, peer.localDescription));
         peer.onicecandidate = e => {
-          console.log(e);
           e.candidate && socket.emit('candidate', id, e.candidate);
         };
         peer.onaddstream = e =>
@@ -83,7 +62,6 @@ export default WebRTCWatch = _ => {
       .on('connect', _ => socket.emit('broadcaster'))
       .emit('watcher')
       .on('watcher', id => {
-        console.log(id);
         peer = new RTCPeerConnection(config);
         clients[id] = peer;
         peer.addStream(stream);
@@ -111,8 +89,7 @@ export default WebRTCWatch = _ => {
 
     setLocalStream(stream);
   };
-  console.log('remote', remoteStream);
-  console.log('local', localStream);
+
   return (
     <View style={{flex: 1}}>
       <View style={{flex: 1}}>

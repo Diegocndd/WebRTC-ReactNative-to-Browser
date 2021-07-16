@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <!-- get socket.io from server-js -->
     <script src="http://localhost:4000/socket.io/socket.io.js"></script>
     <script>
         let config = {
@@ -24,17 +25,10 @@
                 .then(sdp => peer.setLocalDescription(sdp))
                 .then(_ => socket.emit('answer', id, peer.localDescription));
                 peer.onicecandidate = e => {
-                    // console.log('e', e);
                     e.candidate && socket.emit('candidate', id, e.candidate);
                 };
                 peer.onaddstream = e => {
-                    //e.stream && remoteStream !== e.stream && setRemoteStream(e.stream);
-                    console.log('e', e.stream)
                     const video = document.querySelector('video');
-                    // const videoTracks = stream.getVideoTracks();
-                    // console.log('Got stream with constraints:', constraints);
-                    // console.log(`Using video device: ${videoTracks[0].label}`);
-                    // window.stream = stream; // make variable available to browser console
                     video.srcObject = e.stream;
                 }
             })
