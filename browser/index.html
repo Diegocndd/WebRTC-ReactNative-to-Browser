@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="http://localhost:4000/socket.io/socket.io.js"></script>
+    <script>
+        let config = {
+            iceServers: [
+                {urls: 'stun:stun.services.mozilla.com'},
+                {urls: 'stun:stun.l.google.com:19302'},
+            ],
+        };
+        const socket = io("http://localhost:4000", { transport : ['websocket', 'polling', 'flashsocket'] });
+        socket
+            .on('connect', _ => socket.emit('watcher'))
+            .on('offer', async (id, desc) => {
+                peer = new RTCPeerConnection(config);
+                peer
+                .setRemoteDescription(new RTCSessionDescription(desc))
+                .then(_ => peer.createAnswer())
+                .then(sdp => peer.setLocalDescription(sdp))
+                .then(_ => socket.emit('answer', id, peer.localDescription));
+                peer.onicecandidate = e => {
+                    // console.log('e', e);
+                    e.candidate && socket.emit('candidate', id, e.candidate);
+                };
+                peer.onaddstream = e => {
+                    //e.stream && remoteStream !== e.stream && setRemoteStream(e.stream);
+                    console.log('e', e.stream)
+                    const video = document.querySelector('video');
+                    // const videoTracks = stream.getVideoTracks();
+                    // console.log('Got stream with constraints:', constraints);
+                    // console.log(`Using video device: ${videoTracks[0].label}`);
+                    // window.stream = stream; // make variable available to browser console
+                    video.srcObject = e.stream;
+                }
+            })
+            .on('candidate', (id, candidate) =>
+                peer.addIceCandidate(new RTCIceCandidate(candidate)),
+            )
+            .on('disconnectPeer', _ => {
+                peer.close();
+                socket.disconnect(true);
+            });
+    </script>
+</head>
+<body>
+    <video id="gum-local" autoplay playsinline></video>
+</body>
+</html>
