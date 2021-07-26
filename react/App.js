@@ -57,7 +57,7 @@ export default WebRTCWatch = _ => {
       video: true,
     });
 
-    socket = io('http://192.168.15.5:4000');
+    socket = io('http://192.168.15.11:4000');
     socket
       .on('connect', _ => socket.emit('broadcaster'))
       .emit('watcher')
@@ -93,26 +93,6 @@ export default WebRTCWatch = _ => {
   return (
     <View style={{flex: 1}}>
       <View style={{flex: 1}}>
-        {(remoteStream && (
-          <RTCView
-            streamURL={remoteStream.toURL()}
-            zIndex={0}
-            objectFit={'cover'}
-            style={styles.fullScreen}
-          />
-        )) || <Button title="REMOTE STREAM" onPress={_ => remote()} />}
-      </View>
-      <View style={{flex: 1}}>
-        {(remoteStream && (
-          <RTCView
-            streamURL={remoteStream.toURL()}
-            zIndex={0}
-            objectFit={'cover'}
-            style={styles.fullScreen}
-          />
-        )) || <Button title="REMOTE STREAM" onPress={_ => remote()} />}
-      </View>
-      <View style={{flex: 1}}>
         {(localStream && (
           <RTCView
             streamURL={localStream.toURL()}
@@ -120,7 +100,7 @@ export default WebRTCWatch = _ => {
             objectFit={'cover'}
             style={styles.fullScreen}
           />
-        )) || <Button title="Broadcast Now" onPress={_ => broadcast()} />}
+        )) || <Button title="INICIAR TRANSMISSÃO" onPress={_ => broadcast()} />}
       </View>
     </View>
   );
@@ -131,7 +111,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: 300,
-    height: 300,
+    width: screenWidth,
+    height: screenHeight,
   },
 });
