@@ -4,11 +4,12 @@ from mss import mss
 from PIL import Image
 from selenium.webdriver import Chrome
 
-bounding_box = {'top': 100, 'left': 0, 'width': 400, 'height': 600}
+bounding_box = {'top': 100, 'left': 0, 'width': 1000, 'height': 800}
 
 sct = mss()
 
-address = "file:///C:/Users/diego.lima/Desktop/WebRTC-ReactNative-to-Browser/browser/index.html"
+# local do arquivo html
+address = ""
 
 driver = Chrome(executable_path='./chromedriver.exe')
 driver.get(address)

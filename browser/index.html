@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TEST</title>
+    <title>WebRTC</title>
     <script src="./socket.io.js"></script>
+</head>
+<body>
+    <video id="video-local" muted="muted" playsinline style="height: 540px; width: 960px;"></video>
     <script>
         let config = {
             iceServers: [
@@ -13,7 +16,8 @@
                 {urls: 'stun:stun.l.google.com:19302'},
             ],
         };
-        const socket = io("http://localhost:4000", { transport : ['websocket', 'polling', 'flashsocket'] });
+        const socket = io("http://192.168.15.3:4000", { transport : ['websocket', 'polling', 'flashsocket'] });
+
         socket
             .on('connect', _ => socket.emit('watcher'))
             .on('offer', async (id, desc) => {
@@ -27,8 +31,12 @@
                     e.candidate && socket.emit('candidate', id, e.candidate);
                 };
                 peer.onaddstream = e => {
-                    const video = document.querySelector('video');
+                    console.log(e);
+                    const video = document.getElementById('video-local');
                     video.srcObject = e.stream;
+                    video.onloadedmetadata = function(e) {
+                        video.play();
+                    };
                 }
             })
             .on('candidate', (id, candidate) =>
@@ -37,10 +45,7 @@
             .on('disconnectPeer', _ => {
                 peer.close();
                 socket.disconnect(true);
-            });
+            });        
     </script>
-</head>
-<body>
-    <video id="gum-local" autoplay playsinline></video>
 </body>
 </html>

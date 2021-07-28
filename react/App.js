@@ -57,7 +57,7 @@ export default WebRTCWatch = _ => {
       video: true,
     });
 
-    socket = io('http://192.168.15.11:4000');
+    socket = io('http://192.168.15.3:4000');
     socket
       .on('connect', _ => socket.emit('broadcaster'))
       .emit('watcher')
