@@ -9,7 +9,18 @@
 </head>
 <body>
     <video id="video-local" muted="muted" playsinline style="height: 540px; width: 960px;"></video>
+    <button id="button-fullscreen" onclick="openFullscreen();">Open Video in Fullscreen Mode</button>
     <script>
+        var elem = document.getElementById("video-local");
+        function openFullscreen() {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            }
+        }
         let config = {
             iceServers: [
                 {urls: 'stun:stun.services.mozilla.com'},
