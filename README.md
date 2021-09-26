@@ -1,55 +1,37 @@
-# Configuração React Native
+# React Native Configuration
 
-1) Navegue até a pasta <i>react</i>.
+1) Navigate to the <i>react</i> folder.
 
-2) No terminal, execute o seguinte comando para baixar as dependências do projeto:
+2) In the terminal, run the following command to download the project's dependencies:
 
 > yarn
 
-3) Agora, com o dispositivo conectado, execute o comando:
+3) Now, with the device connected, execute the command:
 
 > yarn android
 
-4) Com o aplicativo em funcionamento, acessa o arquivo <i>react/App.js</i> e, na linha 60, subtitua o <i>ip</i> pelo seu <i>ip</i> local, sem alterar a porta 4000.
+4) With the application running, access the <i>react/App.js</i> file and, on line 60, replace the <i>ip</i> with your local <i>ip</i> , without changing port 4000.
 
-5) No aplicativo em funcionamento, clique no botão "INICIAR TRANSMISSÃO". A imagem da sua câmera deve cobrir toda a tela.
+5) In the running application, click on the "START TRANSMISSION" button. The image from your camera should cover the entire screen.
 
-# Configuração Socket
+# Socket Configuration (port 4000)
 
-1) Navegue até a pasta <i>server-js</i>.
+1) Browse to the <i>server-js</i> folder.
 
-2) No terminal, execute o seguinte comando para baixar as dependências do projeto:
+2) In the terminal, run the following command to download the project's dependencies:
 
 > npm install
 
-3) Agora, execute o seguinte comando para iniciar o socket:
+3) Now, execute the following command to start the socket:
 
 > node index.js
 
-4) Se tudo der certo, deve aparecer a mensagem <i>Servidor rodando na porta 4000</i> sem erros.
+4) If everything works out, the message <i>Server running on port 4000</i> should appear without any errors.
 
-# Configuração Browser
+# Browser Configuration
 
-1) Navegue até a pasta <i>browser</i>.
+1) Navigate to the <i>browser</i> folder.
 
-2) No arquivo <i>index.html</i>, na linha 30, subtitua o <i>ip</i> pelo seu <i>ip</i> local, sem alterar a porta 4000.
+2) In the <i>index.html</i> file, on line 30, replace the <i>ip</i> with your local <i>ip</i>, without changing port 4000.
 
-3) Instale as bibliotecas que serão necessárias para executar o arquivo python:
-
-> pip install opencv-python
-
-> pip install selenium
-
-> pip install Pillow
-
-> pip install mss
-
-> pip install numpy
-
-4) No arquivo <i>app.py</i>, na linha 13, adicione o endereço do arquivo <b>index.html</b>.
-
-5) Execute o seguinte comando ainda na pasta <i>browser</i>:
-
-> python app.py
-
-6) Deve ser aberto o navegador Chrome (certifique-se de tê-lo em seu computador) e, em seguida, exibida a imagem da câmera do dispositivo onde está o aplicativo React Native está sendo executado.
+3) The Chrome browser must be opened (make sure you have it on your computer) and then the camera image of the device where the React Native application is running is displayed. 
