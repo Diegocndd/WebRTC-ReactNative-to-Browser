@@ -1,117 +1,131 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Dimensions, View, Button} from 'react-native';
+import React from 'react';
 import {
-  RTCPeerConnection,
-  RTCSessionDescription,
-  RTCIceCandidate,
-  RTCView,
-  mediaDevices,
-} from 'react-native-webrtc';
-import io from 'socket.io-client';
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  Dimensions,
+  TouchableOpacity,
+  PermissionsAndroid,
+} from 'react-native';
 
-const screenWidth = Dimensions.get('window').width;
-const screenHeight = Dimensions.get('window').height;
 
-export default WebRTCWatch = _ => {
-  let socket, peer;
-  let config = {
-    iceServers: [
-      {urls: 'stun:stun.services.mozilla.com'},
-      {urls: 'stun:stun.l.google.com:19302'},
-    ],
-  };
-
-  const [remoteStream, setRemoteStream] = useState();
-  const [localStream, setLocalStream] = useState();
-  let clients = {};
-
-  const remote = () => {
-    socket = io();
-    socket
-      .on('connect', _ => socket.emit('watcher'))
-      .on('offer', async (id, desc) => {
-        peer = new RTCPeerConnection(config);
-        peer
-          .setRemoteDescription(new RTCSessionDescription(desc))
-          .then(_ => peer.createAnswer())
-          .then(sdp => peer.setLocalDescription(sdp))
-          .then(_ => socket.emit('answer', id, peer.localDescription));
-        peer.onicecandidate = e => {
-          e.candidate && socket.emit('candidate', id, e.candidate);
-        };
-        peer.onaddstream = e =>
-          e.stream && remoteStream !== e.stream && setRemoteStream(e.stream);
-      })
-      .on('candidate', (id, candidate) =>
-        peer.addIceCandidate(new RTCIceCandidate(candidate)),
-      )
-      .on('disconnectPeer', _ => {
-        peer.close();
-        socket.disconnect(true);
-      });
-  };
-
-  const broadcast = async _ => {
-    const stream = await mediaDevices.getUserMedia({
-      audio: true,
-      video: true,
-    });
-
-    socket = io('http://192.168.15.3:4000');
-    socket
-      .on('connect', _ => socket.emit('broadcaster'))
-      .emit('watcher')
-      .on('watcher', id => {
-        peer = new RTCPeerConnection(config);
-        clients[id] = peer;
-        peer.addStream(stream);
-        peer
-          .createOffer()
-          .then(sdp => peer.setLocalDescription(sdp))
-          .then(_ => socket.emit('offer', id, peer.localDescription));
-        peer.onicecandidate = e =>
-          e.candidate && socket.emit('candidate', id, e.candidate);
-      })
-      .on('answer', (id, desc) =>
-        clients[id].setRemoteDescription(new RTCSessionDescription(desc)),
-      )
-      .on('candidate', (id, candidate) =>
-        clients[id].addIceCandidate(new RTCIceCandidate(candidate)),
-      )
-      .on('disconnectPeer', id => {
-        const client = clients[id];
-
-        if (client) {
-          clients[id].close();
-          delete clients[id];
-        }
-      });
-
-    setLocalStream(stream);
-  };
-
-  return (
-    <View style={{flex: 1}}>
-      <View style={{flex: 1}}>
-        {(localStream && (
-          <RTCView
-            streamURL={localStream.toURL()}
-            zIndex={0}
-            objectFit={'cover'}
-            style={styles.fullScreen}
-          />
-        )) || <Button title="INICIAR TRANSMISSÃO" onPress={_ => broadcast()} />}
-      </View>
-    </View>
-  );
-};
+import {NodeCameraView} from 'react-native-nodemediaclient';
 
 const styles = StyleSheet.create({
-  fullScreen: {
+  view: {
+    height: Dimensions.get('window').height,
+    width: Dimensions.get('window').width,
+    position: 'relative',
+  },
+  buttonWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: Dimensions.get('window').width,
+    height: 50,
     position: 'absolute',
-    top: 0,
-    left: 0,
-    width: screenWidth,
-    height: screenHeight,
+    zIndex: 2,
+    bottom: 50,
+  },
+  button: {
+    width: 200,
+    height: 40,
+    backgroundColor: '#014484',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 15,
+    paddingRight: 15,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontFamily: 'system',
   },
 });
+
+
+class WebRTCWatch extends React.Component {
+  vb = null;
+
+  state = {
+    isStreaming: false,
+  };
+
+  videoSettings = {
+    preset: 12,
+    bitrate: 400000,
+    profile: 1,
+    fps: 15,
+    videoFrontMirror: false,
+  };
+
+  cameraSettings = {cameraId: 1, cameraFrontMirror: true};
+
+  audioSettings = {bitrate: 32000, profile: 1, samplerate: 44100};
+
+
+  channel = 'apptalk';
+
+
+  get height() {
+    return Dimensions.get('window').height;
+  }
+
+
+  get width() {
+    return Dimensions.get('window').width;
+  }
+
+
+  toggleStream = async () => {
+    await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.CAMERA);
+
+    if (this.state.isStreaming) {
+      this.vb.stop();
+    } else {
+      this.vb.start();
+    }
+    this.setState({
+      isStreaming: !this.state.isStreaming,
+    });
+  };
+
+
+  render() {
+    return (
+      <>
+        <StatusBar barStyle="dark-content" />
+        <View style={styles.view}>
+          <NodeCameraView
+            style={{
+              height: this.height,
+              width: this.width,
+              zIndex: 1,
+              backgroundColor: '#000000',
+            }}
+            ref={vb => {
+              this.vb = vb;
+            }}
+            outputUrl={`rtmp://192.168.15.6/live/${this.channel}`}
+            camera={this.cameraSettings}
+            audio={this.audioSettings}
+            video={this.videoSettings}
+            autopreview={true}></NodeCameraView>
+          <View style={styles.buttonWrapper}>
+            <TouchableOpacity onPress={this.toggleStream}>
+              <View style={styles.button}>
+                <Text style={styles.buttonText}>
+                  {this.state.isStreaming
+                    ? 'Stop Streaming'
+                    : 'Start Streaming'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </>
+    );
+  }
+}
+
+
+export default WebRTCWatch;
